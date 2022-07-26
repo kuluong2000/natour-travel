@@ -1,0 +1,17 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  border: 1px #ddd solid;
+}
+
+.card_header {
+  height: 250px;
+}
+.card_header img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.card_body {
+  padding: 8px;
+}
