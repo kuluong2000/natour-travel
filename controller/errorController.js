@@ -8,7 +8,8 @@ const handleCastErrorDB = (err) => {
 };
 //lỗi insert trùng tên
 const handleDuplicateFieldsDB = (err) => {
-  const value = err.errmsg.match(/(["'])(?:(?=(\\?))\2.)*?\1/)[0];
+  // const value = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
+  const value = err.keyValue.email;
   const message = `Duplicate field value: ${value}. Please use another value!`;
   return new AppError(message, 400);
 };
@@ -18,8 +19,17 @@ const handleValidationErrorDB = (err) => {
   const message = `Invalid input data. ${errors.join('. ')}`;
   return new AppError(message, 400);
 };
+
+// token sai hoặc chưa login
+const handleJsonWebTokenError = (err) =>
+  new AppError('Invalid token. Please login in again!', 401);
+
+//token chết
+const handleTokenExpiredError = (err) => {
+  return new AppError('Your token has expired! Please login again.', 401);
+};
+
 const sendErrorDev = (err, res) => {
-  console.log('debug', err.isOperational);
   res.status(err.statusCode).json({
     status: err.status,
     error: err,
@@ -31,7 +41,6 @@ const sendErrorDev = (err, res) => {
 const sendErrorProd = (err, res) => {
   // Operational, trusted error: send message to client
   if (err.isOperational) {
-    console.log(123);
     res.status(err.statusCode).json({
       status: err.status,
       error: err,
@@ -41,7 +50,7 @@ const sendErrorProd = (err, res) => {
     // Programming or other unknown error: don't leak error details
   } else {
     // 1) Log error
-    // console.error('ERROR 💥', err);
+    console.error('ERROR 💥', err);
 
     // 2) Send generic message
     res.status(500).json({
@@ -61,9 +70,15 @@ module.exports = (err, req, res, next) => {
     let error = { ...err };
 
     if (error.name === 'CastError') error = handleCastErrorDB(error);
-    // if (error.code === 11000) error = handleDuplicateFieldsDB(error);
-    // if (error.name === 'validationError')
-    //   error = handleValidationErrorDB(error);
+    if (error.code === 11000) error = handleDuplicateFieldsDB(error);
+    if (error.name === 'validationError')
+      error = handleValidationErrorDB(error);
+    if (error.name === 'JsonWebTokenError')
+      error = handleJsonWebTokenError(error);
+    console.log(error.name);
+    if (error.name === 'TokenExpiredError')
+      error = handleTokenExpiredError(error);
+
     sendErrorProd(error, res);
   }
 };

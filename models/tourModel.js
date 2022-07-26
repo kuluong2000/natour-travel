@@ -113,7 +113,7 @@ TourSchema.pre(/^find/, function (next) {
 });
 
 TourSchema.post(/^find/, function (docs, next) {
-  console.log(`Query took ${Date.now() - this.start} milliseconds!`);
+  // console.log(`Query took ${Date.now() - this.start} milliseconds!`);
 
   next();
 });
@@ -122,7 +122,7 @@ TourSchema.post(/^find/, function (docs, next) {
 
 TourSchema.pre('aggregate', function (next) {
   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
-  console.log(this.pipeline());
+
   next();
 });
 //create modal

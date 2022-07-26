@@ -5,7 +5,6 @@ class APIFeatures {
   }
 
   filter() {
-    console.log(this.query.find());
     // sao chép một object chứa req.query mới
     const queryObj = { ...this.queryString };
     // tạo những field cần xóa khi query
@@ -22,6 +21,7 @@ class APIFeatures {
   }
   sort() {
     if (this.queryString.sort) {
+      console.log(this.queryString.sort);
       const sortBy = this.queryString.sort.split(',').join(' ');
       this.query = this.query.sort(sortBy);
     } else {
